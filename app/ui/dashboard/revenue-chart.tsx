@@ -15,8 +15,22 @@ export default async function RevenueChart() {
 
     const chartHeight = 350;
 
-    if (!revenue || revenue.length === 0) {
+    // Enhanced validation to ensure revenue is valid array with proper data
+    if (!revenue || revenue.length === 0 || !Array.isArray(revenue)) {
       return <p className="mt-4 text-gray-400">No data available.</p>;
+    }
+
+    // Check if revenue items have the required properties
+    const hasValidData = revenue.every(item => 
+      item && 
+      typeof item === 'object' && 
+      typeof item.revenue === 'number' && 
+      typeof item.month === 'string'
+    );
+
+    if (!hasValidData) {
+      console.error('Invalid revenue data structure:', revenue);
+      return <p className="mt-4 text-gray-400">Invalid data format.</p>;
     }
 
     const { yAxisLabels, topLabel } = generateYAxis(revenue);

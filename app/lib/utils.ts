@@ -22,10 +22,25 @@ export const formatDateToLocal = (
 };
 
 export const generateYAxis = (revenue: Revenue[]) => {
+  // Defensive check to ensure revenue is valid
+  if (!revenue || !Array.isArray(revenue) || revenue.length === 0) {
+    return { yAxisLabels: ['$0K'], topLabel: 0 };
+  }
+
   // Calculate what labels we need to display on the y-axis
   // based on highest record and in 1000s
   const yAxisLabels = [];
-  const highestRecord = Math.max(...revenue.map((month) => month.revenue));
+  
+  // Filter out invalid entries and extract revenue values
+  const validRevenues = revenue
+    .filter(month => month && typeof month.revenue === 'number' && !isNaN(month.revenue))
+    .map(month => month.revenue);
+
+  if (validRevenues.length === 0) {
+    return { yAxisLabels: ['$0K'], topLabel: 0 };
+  }
+
+  const highestRecord = Math.max(...validRevenues);
   const topLabel = Math.ceil(highestRecord / 1000) * 1000;
 
   for (let i = topLabel; i >= 0; i -= 1000) {
