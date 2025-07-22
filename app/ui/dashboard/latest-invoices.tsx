@@ -2,20 +2,33 @@ import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import Image from 'next/image';
 import { lusitana } from '../fonts';
-import { LatestInvoice } from '@/app/lib/definitions';
-export default async function LatestInvoices({
-  latestInvoices,
-}: {
-  latestInvoices: LatestInvoice[];
-}) {
-  return (
-    <div className="flex w-full flex-col md:col-span-4">
-      <h2 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-        Latest Invoices
-      </h2>
-      <div className="flex grow flex-col justify-between rounded-xl bg-gray-50 p-4">
-        <div className="bg-white px-6">
-          {latestInvoices.map((invoice, i) => {
+import { fetchLatestInvoices } from '@/app/lib/data';
+
+export default async function LatestInvoices() {
+  try {
+    const latestInvoices = await fetchLatestInvoices();
+
+    if (!latestInvoices || latestInvoices.length === 0) {
+      return (
+        <div className="flex w-full flex-col md:col-span-4">
+          <h2 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+            Latest Invoices
+          </h2>
+          <div className="flex grow flex-col justify-between rounded-xl bg-gray-50 p-4">
+            <p className="mt-4 text-gray-400">No invoices available.</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex w-full flex-col md:col-span-4">
+        <h2 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+          Latest Invoices
+        </h2>
+        <div className="flex grow flex-col justify-between rounded-xl bg-gray-50 p-4">
+          <div className="bg-white px-6">
+            {latestInvoices.map((invoice, i) => {
             return (
               <div
                 key={invoice.id}
@@ -59,4 +72,17 @@ export default async function LatestInvoices({
       </div>
     </div>
   );
+  } catch (error) {
+    console.error('Error in LatestInvoices:', error);
+    return (
+      <div className="flex w-full flex-col md:col-span-4">
+        <h2 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+          Latest Invoices
+        </h2>
+        <div className="flex grow flex-col justify-between rounded-xl bg-gray-50 p-4">
+          <p className="mt-4 text-gray-400">Failed to load invoices.</p>
+        </div>
+      </div>
+    );
+  }
 }
